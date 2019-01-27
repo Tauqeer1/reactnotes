@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import Note from "./Note/Note";
 import NoteForm from "./NoteForm/NoteForm";
 import { config } from "./Config/config";
 import firebase from "firebase/app";
+import "firebase/database";
 import "./App.css";
 
 class App extends Component {
@@ -23,12 +23,21 @@ class App extends Component {
     this.addNote = this.addNote.bind(this);
   }
 
-  addNote(note) {
+  componentWillMount() {
     const previousNotes = this.state.notes;
-    previousNotes.push({ id: previousNotes.length + 1, noteContent: note });
-    this.setState({
-      notes: previousNotes
+    this.db.on("child_added", snap => {
+      previousNotes.push({
+        id: snap.key,
+        noteContent: snap.val().noteContent
+      });
+      this.setState({
+        notes: previousNotes
+      });
     });
+  }
+
+  addNote(note) {
+    this.db.push().set({ noteContent: note });
   }
   render() {
     return (
