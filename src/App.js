@@ -2,18 +2,22 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import Note from "./Note/Note";
 import NoteForm from "./NoteForm/NoteForm";
+import { config } from "./Config/config";
+import firebase from "firebase/app";
 import "./App.css";
 
 class App extends Component {
   constructor(props) {
     super(props);
 
+    this.app = firebase.initializeApp(config);
+    this.db = this.app
+      .database()
+      .ref()
+      .child("notes");
     // We are going to setup the React state of our component
     this.state = {
-      notes: [
-        { id: 1, noteContent: "Note 1 here!" },
-        { id: 2, noteContent: "Note 2 here!" }
-      ]
+      notes: []
     };
 
     this.addNote = this.addNote.bind(this);
