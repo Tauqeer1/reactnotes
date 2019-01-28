@@ -21,10 +21,12 @@ class App extends Component {
     };
 
     this.addNote = this.addNote.bind(this);
+    this.removeNote = this.removeNote.bind(this);
   }
 
   componentWillMount() {
-    const previousNotes = this.state.notes;
+    let previousNotes = this.state.notes;
+
     this.db.on("child_added", snap => {
       previousNotes.push({
         id: snap.key,
@@ -34,10 +36,21 @@ class App extends Component {
         notes: previousNotes
       });
     });
+
+    this.db.on("child_removed", snap => {
+      previousNotes = previousNotes.filter(note => note.id !== snap.key);
+      this.setState({
+        notes: previousNotes
+      });
+    });
   }
 
   addNote(note) {
     this.db.push().set({ noteContent: note });
+  }
+
+  removeNote(noteId) {
+    this.db.child(noteId).remove();
   }
   render() {
     return (
@@ -51,6 +64,7 @@ class App extends Component {
               noteContent={note.noteContent}
               noteId={note.id}
               key={note.id}
+              removeNote={this.removeNote}
             />
           ))}
         </div>
